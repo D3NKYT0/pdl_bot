@@ -3,6 +3,7 @@ Gerenciamento do banco de dados MongoDB
 """
 
 import logging
+from datetime import datetime
 from typing import Optional, Dict, List
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from bot.core.config import Config
@@ -62,22 +63,29 @@ class Database:
             # Normalizar domínio (remover http/https, barras finais)
             site_domain = self._normalize_domain(site_domain)
             
+            # Dados para atualizar (sem created_at para evitar conflito)
             server_data = {
                 "discord_guild_id": discord_guild_id,
                 "site_domain": site_domain,
                 "server_name": server_name,
                 "is_active": True,
-                "created_at": None,  # MongoDB adiciona automaticamente
             }
             
+            # Usar $setOnInsert apenas para created_at (só define na inserção)
             result = await self.db.servers.update_one(
                 {"discord_guild_id": discord_guild_id},
-                {"$set": server_data, "$setOnInsert": {"created_at": None}},
+                {
+                    "$set": server_data,
+                    "$setOnInsert": {"created_at": datetime.utcnow()}
+                },
                 upsert=True
             )
             
             logger.info(f"Servidor registrado: {discord_guild_id} -> {site_domain}")
-            return server_data
+            
+            # Buscar documento atualizado para retornar dados completos
+            updated_server = await self.db.servers.find_one({"discord_guild_id": discord_guild_id})
+            return updated_server or server_data
             
         except Exception as e:
             logger.error(f"Erro ao registrar servidor: {e}")
