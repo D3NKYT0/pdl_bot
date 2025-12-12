@@ -1,0 +1,44 @@
+services:
+  bot:
+    container_name: pdl_bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - bot_network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    init: true
+    stop_grace_period: 30s
+
+  mongodb:
+    container_name: pdl_bot_mongodb
+    image: mongo:7.0
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGODB_DB:-pdl_bot}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - bot_network
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  bot_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+
