@@ -26,7 +26,7 @@ class ServerInfo(commands.Cog):
         
         return await self.bot.get_site_client(server_data['site_domain'])
     
-    @app_commands.command(name="online", description="Mostra quantos jogadores estão online")
+    @app_commands.command(name="online", description="[PAINEL] Mostra quantos jogadores estão online")
     async def online(self, interaction: discord.Interaction):
         """Mostra jogadores online"""
         await interaction.response.defer()
@@ -70,7 +70,7 @@ class ServerInfo(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="top-pvp", description="Mostra o ranking de PvP")
+    @app_commands.command(name="top-pvp", description="[PAINEL] Mostra o ranking de PvP")
     @app_commands.describe(limit="Número de jogadores (padrão: 10)")
     async def top_pvp(self, interaction: discord.Interaction, limit: int = 10):
         """Mostra top PvP"""
@@ -131,7 +131,7 @@ class ServerInfo(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="top-pk", description="Mostra o ranking de PK")
+    @app_commands.command(name="top-pk", description="[PAINEL] Mostra o ranking de PK")
     @app_commands.describe(limit="Número de jogadores (padrão: 10)")
     async def top_pk(self, interaction: discord.Interaction, limit: int = 10):
         """Mostra top PK"""
@@ -192,7 +192,7 @@ class ServerInfo(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="top-level", description="Mostra o ranking de nível")
+    @app_commands.command(name="top-level", description="[PAINEL] Mostra o ranking de nível")
     @app_commands.describe(limit="Número de jogadores (padrão: 10)")
     async def top_level(self, interaction: discord.Interaction, limit: int = 10):
         """Mostra top nível"""
@@ -253,7 +253,7 @@ class ServerInfo(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="search", description="Busca um personagem")
+    @app_commands.command(name="search", description="[PAINEL] Busca um personagem")
     @app_commands.describe(character_name="Nome do personagem")
     async def search(self, interaction: discord.Interaction, character_name: str):
         """Busca um personagem"""

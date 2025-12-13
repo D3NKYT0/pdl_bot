@@ -16,7 +16,7 @@ class Vote(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @app_commands.command(name="vote", description="Mostra links para votar no bot")
+    @app_commands.command(name="vote", description="[BOT] Mostra links para votar no bot")
     async def vote(self, interaction: discord.Interaction):
         """Mostra links de votação"""
         embed = discord.Embed(

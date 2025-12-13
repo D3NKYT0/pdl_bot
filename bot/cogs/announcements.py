@@ -18,7 +18,7 @@ class Announcements(commands.Cog):
         self.bot = bot
         self.db = bot.db
     
-    @app_commands.command(name="announce", description="Faz um anúncio no canal configurado")
+    @app_commands.command(name="announce", description="[BOT] Faz um anúncio no canal configurado")
     @app_commands.describe(message="Mensagem do anúncio")
     @app_commands.default_permissions(manage_guild=True)
     async def announce(self, interaction: discord.Interaction, message: str):
@@ -38,7 +38,7 @@ class Announcements(commands.Cog):
             
             if not announcement_channel_id:
                 await interaction.followup.send(
-                    "❌ Canal de anúncios não configurado. Use `/config-set` para configurar.",
+                    "❌ Canal de anúncios não configurado. Use `/config-set-channel` para configurar.",
                     ephemeral=True
                 )
                 return

@@ -120,9 +120,9 @@ Isso vincula o servidor Discord ao site `l2iron.com`.
 #### Comandos Autenticados [PAINEL] (Requerem Login)
 - `/login <username> <password>` - Faz login no site
 - `/logout` - Faz logout
-- `/panel-profile` - Mostra seu perfil no site
-- `/panel-dashboard` - Mostra seu dashboard
-- `/panel-stats` - Mostra suas estatísticas
+- `/account` - Mostra seu perfil no site
+- `/dashboard` - Mostra seu dashboard
+- `/mystats` - Mostra suas estatísticas
 
 #### Comandos do Bot [BOT]
 - `/profile [usuário]` - Mostra perfil de um usuário do Discord

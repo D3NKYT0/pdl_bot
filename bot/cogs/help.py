@@ -13,7 +13,7 @@ class HelpCommand(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @app_commands.command(name="help", description="Mostra informações sobre o bot e seus comandos")
+    @app_commands.command(name="help", description="[BOT] Mostra informações sobre o bot e seus comandos")
     @app_commands.describe(category="Categoria de comandos para ver detalhes")
     @app_commands.choices(category=[
         app_commands.Choice(name="Todas as Categorias", value="all"),
@@ -97,7 +97,7 @@ class HelpCommand(commands.Cog):
                 name="🔐 Autenticação [PAINEL]",
                 value="`/login` - Fazer login\n"
                       "`/logout` - Fazer logout\n"
-                      "`/panel-profile`, `/panel-dashboard`, `/panel-stats` - Dados pessoais",
+                      "`/account`, `/dashboard`, `/mystats` - Dados pessoais",
                 inline=True
             )
             
@@ -285,17 +285,17 @@ class HelpCommand(commands.Cog):
                 inline=False
             )
             embed.add_field(
-                name="`/panel-profile`",
+                name="`/account`",
                 value="[PAINEL] Mostra seu perfil no site (requer login).",
                 inline=False
             )
             embed.add_field(
-                name="`/panel-dashboard`",
+                name="`/dashboard`",
                 value="[PAINEL] Mostra seu dashboard com estatísticas (requer login).",
                 inline=False
             )
             embed.add_field(
-                name="`/panel-stats`",
+                name="`/mystats`",
                 value="[PAINEL] Mostra suas estatísticas detalhadas (requer login).",
                 inline=False
             )
@@ -330,18 +330,24 @@ class HelpCommand(commands.Cog):
                 inline=False
             )
             embed.add_field(
-                name="`/config-set <configuração> <valor>`",
-                value="Define uma configuração.\n\n"
-                      "**Canais:**\n"
-                      "- `feedback_channel` - Canal para receber feedbacks\n"
-                      "- `announcement_channel` - Canal para anúncios\n"
-                      "- `log_channel` - Canal para logs\n\n"
-                      "**Notificações:**\n"
-                      "- `boss_notifications` - Notificar sobre bosses\n"
-                      "- `siege_notifications` - Notificar sobre cercos\n"
-                      "- `olympiad_notifications` - Notificar sobre olimpíada\n"
-                      "- `member_join_notifications` - Notificar entrada de membros\n"
-                      "- `member_leave_notifications` - Notificar saída de membros",
+                name="`/config-set-channel`",
+                value="Define um canal de configuração.\n\n"
+                      "**Tipos de canal:**\n"
+                      "- Canal de Feedback\n"
+                      "- Canal de Anúncios\n"
+                      "- Canal de Logs\n\n"
+                      "Deixe o canal vazio para remover a configuração.",
+                inline=False
+            )
+            embed.add_field(
+                name="`/config-set-notification`",
+                value="Ativa ou desativa notificações.\n\n"
+                      "**Tipos de notificação:**\n"
+                      "- Notificações de Bosses\n"
+                      "- Notificações de Cercos\n"
+                      "- Notificações de Olimpíada\n"
+                      "- Notificações de Entrada de Membros\n"
+                      "- Notificações de Saída de Membros",
                 inline=False
             )
         

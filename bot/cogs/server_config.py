@@ -3,6 +3,7 @@ Cog para configurações do servidor
 """
 
 import logging
+from typing import Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -17,7 +18,7 @@ class ServerConfig(commands.Cog):
         self.bot = bot
         self.db = bot.db
     
-    @app_commands.command(name="config", description="Configurações do servidor")
+    @app_commands.command(name="config", description="[BOT] Configurações do servidor")
     @app_commands.default_permissions(manage_guild=True)
     async def config(self, interaction: discord.Interaction):
         """Mostra configurações disponíveis"""
@@ -63,20 +64,76 @@ class ServerConfig(commands.Cog):
             inline=False
         )
         
-        embed.set_footer(text="Use /config-set para alterar as configurações")
+        embed.set_footer(text="Use /config-set-channel e /config-set-notification para alterar as configurações")
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
     
-    @app_commands.command(name="config-set", description="Define uma configuração do servidor")
+    @app_commands.command(name="config-set-channel", description="[BOT] Define um canal de configuração")
     @app_commands.describe(
-        setting="Configuração a alterar",
-        channel="Canal (para configurações de canal)",
-        enabled="Ativar/desativar (para notificações)"
+        setting="Tipo de canal a configurar",
+        channel="Canal de texto (deixe vazio para remover)"
     )
     @app_commands.choices(setting=[
         app_commands.Choice(name="Canal de Feedback", value="feedback_channel"),
         app_commands.Choice(name="Canal de Anúncios", value="announcement_channel"),
         app_commands.Choice(name="Canal de Logs", value="log_channel"),
+    ])
+    @app_commands.default_permissions(manage_guild=True)
+    async def config_set_channel(self, interaction: discord.Interaction, 
+                                setting: app_commands.Choice[str],
+                                channel: Optional[discord.TextChannel] = None):
+        """Define um canal de configuração"""
+        await interaction.response.defer(ephemeral=True)
+        
+        try:
+            config = await self.db.get_server_config(str(interaction.guild.id))
+            setting_key = setting.value
+            
+            if not channel:
+                # Remover canal
+                config[setting_key + '_id'] = None
+                await self.db.update_server_config(str(interaction.guild.id), config)
+                await interaction.followup.send(
+                    f"✅ Canal de {setting.name.lower()} removido.",
+                    ephemeral=True
+                )
+                return
+            
+            # Validar que o canal é válido
+            if not isinstance(channel, discord.TextChannel):
+                await interaction.followup.send(
+                    "❌ O canal deve ser um canal de texto.",
+                    ephemeral=True
+                )
+                return
+            
+            if channel.guild.id != interaction.guild.id:
+                await interaction.followup.send(
+                    "❌ O canal deve estar neste servidor.",
+                    ephemeral=True
+                )
+                return
+            
+            config[setting_key + '_id'] = str(channel.id)
+            await self.db.update_server_config(str(interaction.guild.id), config)
+            await interaction.followup.send(
+                f"✅ Canal de {setting.name.lower()} definido para {channel.mention}",
+                ephemeral=True
+            )
+                
+        except Exception as e:
+            logger.error(f"Erro ao definir canal: {e}", exc_info=True)
+            await interaction.followup.send(
+                "❌ Erro ao definir canal. Tente novamente.",
+                ephemeral=True
+            )
+    
+    @app_commands.command(name="config-set-notification", description="[BOT] Ativa/desativa notificações")
+    @app_commands.describe(
+        setting="Tipo de notificação",
+        enabled="Ativar ou desativar"
+    )
+    @app_commands.choices(setting=[
         app_commands.Choice(name="Notificações de Bosses", value="boss_notifications"),
         app_commands.Choice(name="Notificações de Cercos", value="siege_notifications"),
         app_commands.Choice(name="Notificações de Olimpíada", value="olympiad_notifications"),
@@ -84,71 +141,29 @@ class ServerConfig(commands.Cog):
         app_commands.Choice(name="Notificações de Saída de Membros", value="member_leave_notifications"),
     ])
     @app_commands.default_permissions(manage_guild=True)
-    async def config_set(self, interaction: discord.Interaction, 
-                        setting: app_commands.Choice[str], 
-                        channel: discord.TextChannel = None,
-                        enabled: bool = None):
-        """Define uma configuração"""
+    async def config_set_notification(self, interaction: discord.Interaction,
+                                      setting: app_commands.Choice[str],
+                                      enabled: bool):
+        """Ativa ou desativa uma notificação"""
         await interaction.response.defer(ephemeral=True)
         
         try:
             config = await self.db.get_server_config(str(interaction.guild.id))
             setting_key = setting.value
             
-            # Configurações de canal
-            if setting_key.endswith('_channel'):
-                if not channel:
-                    # Remover canal
-                    config[setting_key + '_id'] = None
-                    await self.db.update_server_config(str(interaction.guild.id), config)
-                    await interaction.followup.send(
-                        f"✅ Canal de {setting.name.lower()} removido.",
-                        ephemeral=True
-                    )
-                    return
-                
-                if channel.guild.id != interaction.guild.id:
-                    await interaction.followup.send(
-                        "❌ O canal deve estar neste servidor.",
-                        ephemeral=True
-                    )
-                    return
-                
-                config[setting_key + '_id'] = str(channel.id)
-                await self.db.update_server_config(str(interaction.guild.id), config)
-                await interaction.followup.send(
-                    f"✅ Canal de {setting.name.lower()} definido para {channel.mention}",
-                    ephemeral=True
-                )
+            config[setting_key] = enabled
+            status = "ativadas" if enabled else "desativadas"
             
-            # Configurações booleanas (notificações)
-            elif setting_key.endswith('_notifications'):
-                if enabled is None:
-                    await interaction.followup.send(
-                        "❌ Use `enabled: true` ou `enabled: false` para ativar/desativar.",
-                        ephemeral=True
-                    )
-                    return
-                
-                config[setting_key] = enabled
-                status = "ativadas" if enabled else "desativadas"
-                
-                await self.db.update_server_config(str(interaction.guild.id), config)
-                await interaction.followup.send(
-                    f"✅ Notificações de {setting.name.lower()} {status}.",
-                    ephemeral=True
-                )
-            
-            else:
-                await interaction.followup.send(
-                    "❌ Configuração não reconhecida.",
-                    ephemeral=True
-                )
+            await self.db.update_server_config(str(interaction.guild.id), config)
+            await interaction.followup.send(
+                f"✅ Notificações de {setting.name.lower()} {status}.",
+                ephemeral=True
+            )
                 
         except Exception as e:
-            logger.error(f"Erro ao definir configuração: {e}", exc_info=True)
+            logger.error(f"Erro ao definir notificação: {e}", exc_info=True)
             await interaction.followup.send(
-                "❌ Erro ao definir configuração. Tente novamente.",
+                "❌ Erro ao definir notificação. Tente novamente.",
                 ephemeral=True
             )
 

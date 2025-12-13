@@ -18,7 +18,7 @@ class Feedback(commands.Cog):
         self.bot = bot
         self.db = bot.db
     
-    @app_commands.command(name="feedback", description="Envia feedback, sugestão ou reporta um bug")
+    @app_commands.command(name="feedback", description="[BOT] Envia feedback, sugestão ou reporta um bug")
     @app_commands.describe(message="Sua mensagem de feedback, sugestão ou reporte")
     async def feedback(self, interaction: discord.Interaction, message: str):
         """Envia feedback para os desenvolvedores"""

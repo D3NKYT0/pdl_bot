@@ -17,7 +17,7 @@ class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @app_commands.command(name="avatar", description="Mostra o avatar de um usuário")
+    @app_commands.command(name="avatar", description="[BOT] Mostra o avatar de um usuário")
     @app_commands.describe(user="Usuário para ver o avatar (deixe vazio para ver o seu)")
     async def avatar(self, interaction: discord.Interaction, user: discord.User = None):
         """Mostra avatar do usuário"""
@@ -45,7 +45,7 @@ class Utility(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="roll", description="Rola um dado")
+    @app_commands.command(name="roll", description="[BOT] Rola um dado")
     @app_commands.describe(sides="Número de lados do dado (padrão: 6)")
     async def roll(self, interaction: discord.Interaction, sides: int = 6):
         """Rola um dado"""
@@ -73,7 +73,7 @@ class Utility(commands.Cog):
         
         await interaction.response.send_message(embed=embed)
     
-    @app_commands.command(name="choose", description="Escolhe uma opção aleatória")
+    @app_commands.command(name="choose", description="[BOT] Escolhe uma opção aleatória")
     @app_commands.describe(options="Opções separadas por vírgula")
     async def choose(self, interaction: discord.Interaction, options: str):
         """Escolhe uma opção aleatória"""
@@ -105,7 +105,7 @@ class Utility(commands.Cog):
         
         await interaction.response.send_message(embed=embed)
     
-    @app_commands.command(name="ping", description="Mostra a latência do bot")
+    @app_commands.command(name="ping", description="[BOT] Mostra a latência do bot")
     async def ping(self, interaction: discord.Interaction):
         """Mostra latência do bot"""
         latency = round(self.bot.latency * 1000, 2)

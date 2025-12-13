@@ -66,7 +66,7 @@ class PlayerCommands(commands.Cog):
     
     # ==================== COMANDOS DE BOSSES ====================
     
-    @app_commands.command(name="bosses", description="Mostra status dos Grand Bosses")
+    @app_commands.command(name="bosses", description="[PAINEL] Mostra status dos Grand Bosses")
     async def bosses(self, interaction: discord.Interaction):
         """Mostra status dos Grand Bosses"""
         if not await self._check_rate_limit(interaction, "bosses"):
@@ -135,7 +135,7 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="boss-jewel", description="Busca localização de Boss Jewels")
+    @app_commands.command(name="boss-jewel", description="[PAINEL] Busca localização de Boss Jewels")
     @app_commands.describe(jewel_ids="IDs dos jewels separados por vírgula (ex: 6656,6657)")
     async def boss_jewel(self, interaction: discord.Interaction, jewel_ids: str):
         """Busca localização de Boss Jewels"""
@@ -207,7 +207,7 @@ class PlayerCommands(commands.Cog):
     
     # ==================== COMANDOS DE OLIMPÍADA ====================
     
-    @app_commands.command(name="olympiad", description="Mostra ranking da Olimpíada")
+    @app_commands.command(name="olympiad", description="[PAINEL] Mostra ranking da Olimpíada")
     @app_commands.describe(limit="Número de jogadores (padrão: 10, máximo: 20)")
     async def olympiad(self, interaction: discord.Interaction, limit: int = 10):
         """Mostra ranking da Olimpíada"""
@@ -272,7 +272,7 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="heroes", description="Mostra heróis atuais da Olimpíada")
+    @app_commands.command(name="heroes", description="[PAINEL] Mostra heróis atuais da Olimpíada")
     async def heroes(self, interaction: discord.Interaction):
         """Mostra heróis atuais da Olimpíada"""
         if not await self._check_rate_limit(interaction, "heroes"):
@@ -335,7 +335,7 @@ class PlayerCommands(commands.Cog):
     
     # ==================== COMANDOS DE CERCOS ====================
     
-    @app_commands.command(name="siege", description="Mostra status dos cercos")
+    @app_commands.command(name="siege", description="[PAINEL] Mostra status dos cercos")
     async def siege(self, interaction: discord.Interaction):
         """Mostra status dos cercos"""
         if not await self._check_rate_limit(interaction, "siege"):
@@ -396,7 +396,7 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="siege-participants", description="Mostra participantes de um cerco")
+    @app_commands.command(name="siege-participants", description="[PAINEL] Mostra participantes de um cerco")
     @app_commands.describe(castle_id="ID do castelo (1-9)")
     async def siege_participants(self, interaction: discord.Interaction, castle_id: int):
         """Mostra participantes de um cerco"""
@@ -470,7 +470,7 @@ class PlayerCommands(commands.Cog):
     
     # ==================== COMANDOS DE CLÃS E LEILÃO ====================
     
-    @app_commands.command(name="clan", description="Busca informações de um clã")
+    @app_commands.command(name="clan", description="[PAINEL] Busca informações de um clã")
     @app_commands.describe(clan_name="Nome do clã")
     async def clan(self, interaction: discord.Interaction, clan_name: str):
         """Busca informações de um clã"""
@@ -539,7 +539,7 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="auction", description="Mostra itens do leilão")
+    @app_commands.command(name="auction", description="[PAINEL] Mostra itens do leilão")
     @app_commands.describe(limit="Número de itens (padrão: 10, máximo: 20)")
     async def auction(self, interaction: discord.Interaction, limit: int = 10):
         """Mostra itens do leilão"""
@@ -604,7 +604,7 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="item-search", description="Busca um item")
+    @app_commands.command(name="item-search", description="[PAINEL] Busca um item")
     @app_commands.describe(item_name="Nome do item")
     async def item_search(self, interaction: discord.Interaction, item_name: str):
         """Busca um item"""
@@ -681,7 +681,7 @@ class PlayerCommands(commands.Cog):
     
     # ==================== COMANDOS DE RANKING ADICIONAIS ====================
     
-    @app_commands.command(name="top-rich", description="Mostra ranking de riqueza (Adena)")
+    @app_commands.command(name="top-rich", description="[PAINEL] Mostra ranking de riqueza (Adena)")
     @app_commands.describe(limit="Número de jogadores (padrão: 10, máximo: 20)")
     async def top_rich(self, interaction: discord.Interaction, limit: int = 10):
         """Mostra ranking de riqueza"""
@@ -743,7 +743,7 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="top-online", description="Mostra ranking de tempo online")
+    @app_commands.command(name="top-online", description="[PAINEL] Mostra ranking de tempo online")
     @app_commands.describe(limit="Número de jogadores (padrão: 10, máximo: 20)")
     async def top_online(self, interaction: discord.Interaction, limit: int = 10):
         """Mostra ranking de tempo online"""
@@ -816,7 +816,7 @@ class PlayerCommands(commands.Cog):
     
     # ==================== COMANDOS AUTENTICADOS ====================
     
-    @app_commands.command(name="login", description="Faz login no site (requer autenticação)")
+    @app_commands.command(name="login", description="[PAINEL] Faz login no site (requer autenticação)")
     @app_commands.describe(username="Seu nome de usuário", password="Sua senha")
     async def login(self, interaction: discord.Interaction, username: str, password: str):
         """Faz login no site"""
@@ -856,7 +856,7 @@ class PlayerCommands(commands.Cog):
                 await interaction.followup.send(
                     f"✅ Login realizado com sucesso!\n"
                     f"Usuário: `{username_display}`\n\n"
-                    f"Agora você pode usar comandos autenticados como `/panel-profile`, `/panel-dashboard` e `/panel-stats`.",
+                    f"Agora você pode usar comandos autenticados como `/account`, `/dashboard` e `/mystats`.",
                     ephemeral=True
                 )
             else:
@@ -872,7 +872,7 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="logout", description="Faz logout do site")
+    @app_commands.command(name="logout", description="[PAINEL] Faz logout do site")
     async def logout(self, interaction: discord.Interaction):
         """Faz logout do site"""
         await interaction.response.defer(ephemeral=True)
@@ -890,8 +890,8 @@ class PlayerCommands(commands.Cog):
             ephemeral=True
         )
     
-    @app_commands.command(name="panel-profile", description="[PAINEL] Mostra seu perfil no site (requer login)")
-    async def panel_profile(self, interaction: discord.Interaction):
+    @app_commands.command(name="account", description="[PAINEL] Mostra seu perfil no site (requer login)")
+    async def account(self, interaction: discord.Interaction):
         """Mostra perfil do usuário"""
         if not await self._check_rate_limit(interaction, "profile"):
             reset_time = rate_limiter.get_reset_time(interaction.user.id, "profile")
@@ -958,8 +958,8 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="panel-dashboard", description="[PAINEL] Mostra seu dashboard (requer login)")
-    async def panel_dashboard(self, interaction: discord.Interaction):
+    @app_commands.command(name="dashboard", description="[PAINEL] Mostra seu dashboard (requer login)")
+    async def dashboard(self, interaction: discord.Interaction):
         """Mostra dashboard do usuário"""
         if not await self._check_rate_limit(interaction, "dashboard"):
             reset_time = rate_limiter.get_reset_time(interaction.user.id, "dashboard")
@@ -1024,8 +1024,8 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="panel-stats", description="[PAINEL] Mostra suas estatísticas (requer login)")
-    async def panel_stats(self, interaction: discord.Interaction):
+    @app_commands.command(name="mystats", description="[PAINEL] Mostra suas estatísticas (requer login)")
+    async def mystats(self, interaction: discord.Interaction):
         """Mostra estatísticas do usuário"""
         if not await self._check_rate_limit(interaction, "stats"):
             reset_time = rate_limiter.get_reset_time(interaction.user.id, "stats")
