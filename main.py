@@ -61,10 +61,28 @@ class PDLBot(commands.Bot):
         
         # Carregar cogs
         try:
+            # Cogs principais
             await self.load_extension('bot.cogs.server_detection')
             await self.load_extension('bot.cogs.server_info')
             await self.load_extension('bot.cogs.player_commands')
             await self.load_extension('bot.cogs.help')
+            
+            # Fase 1 - Essenciais
+            await self.load_extension('bot.cogs.feedback')
+            await self.load_extension('bot.cogs.server_config')
+            
+            # Fase 2 - Importantes
+            await self.load_extension('bot.cogs.logging_system')
+            await self.load_extension('bot.cogs.announcements')
+            await self.load_extension('bot.cogs.notifications')
+            
+            # Fase 3 - Melhorias
+            await self.load_extension('bot.cogs.user_profile')
+            
+            # Fase 4 - Extras
+            await self.load_extension('bot.cogs.utility')
+            await self.load_extension('bot.cogs.vote')
+            
         except Exception as e:
             logger.error(f"Erro ao carregar cogs: {e}", exc_info=True)
         

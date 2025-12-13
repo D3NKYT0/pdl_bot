@@ -140,6 +140,90 @@ class Database:
         except Exception as e:
             logger.error(f"Erro ao atualizar status: {e}")
     
+    # ==================== CONFIGURAÇÕES DE SERVIDOR ====================
+    
+    async def get_server_config(self, discord_guild_id: str) -> Dict:
+        """Obtém configurações do servidor, criando padrão se não existir"""
+        try:
+            server = await self.get_server_by_discord_id(discord_guild_id)
+            if not server:
+                return self._get_default_config()
+            
+            # Garantir que config existe
+            if 'config' not in server:
+                config = self._get_default_config()
+                await self.update_server_config(discord_guild_id, config)
+                return config
+            
+            return server.get('config', self._get_default_config())
+        except Exception as e:
+            logger.error(f"Erro ao obter configuração: {e}")
+            return self._get_default_config()
+    
+    async def update_server_config(self, discord_guild_id: str, config: Dict):
+        """Atualiza configurações do servidor"""
+        try:
+            await self.db.servers.update_one(
+                {"discord_guild_id": discord_guild_id},
+                {"$set": {"config": config}}
+            )
+            logger.info(f"Configuração atualizada: {discord_guild_id}")
+        except Exception as e:
+            logger.error(f"Erro ao atualizar configuração: {e}")
+    
+    async def update_server_config_key(self, discord_guild_id: str, key: str, value):
+        """Atualiza uma chave específica da configuração"""
+        try:
+            config = await self.get_server_config(discord_guild_id)
+            config[key] = value
+            await self.update_server_config(discord_guild_id, config)
+        except Exception as e:
+            logger.error(f"Erro ao atualizar chave de configuração: {e}")
+    
+    def _get_default_config(self) -> Dict:
+        """Retorna configuração padrão"""
+        return {
+            "feedback_channel_id": None,
+            "announcement_channel_id": None,
+            "log_channel_id": None,
+            "boss_notifications": False,
+            "siege_notifications": False,
+            "olympiad_notifications": False,
+            "member_join_notifications": False,
+            "member_leave_notifications": False,
+        }
+    
+    # ==================== FEEDBACK ====================
+    
+    async def save_feedback(self, user_id: str, guild_id: str, message: str, 
+                           server_name: str = None) -> Dict:
+        """Salva um feedback"""
+        try:
+            feedback_data = {
+                "user_id": user_id,
+                "guild_id": guild_id,
+                "server_name": server_name,
+                "message": message,
+                "created_at": datetime.utcnow(),
+                "status": "pending"
+            }
+            
+            result = await self.db.feedback.insert_one(feedback_data)
+            logger.info(f"Feedback salvo: {result.inserted_id}")
+            return feedback_data
+        except Exception as e:
+            logger.error(f"Erro ao salvar feedback: {e}")
+            raise
+    
+    async def get_feedback(self, limit: int = 50) -> List[Dict]:
+        """Lista feedbacks"""
+        try:
+            feedbacks = await self.db.feedback.find().sort("created_at", -1).limit(limit).to_list(length=limit)
+            return feedbacks
+        except Exception as e:
+            logger.error(f"Erro ao listar feedbacks: {e}")
+            return []
+    
     # ==================== CACHE ====================
     
     async def cache_set(self, key: str, value: Dict, ttl: int = None):
