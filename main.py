@@ -39,6 +39,7 @@ class PDLBot(commands.Bot):
         intents.message_content = True
         intents.guilds = True
         intents.members = True
+        intents.presences = True  # Necessário para ver status dos usuários
         
         super().__init__(
             command_prefix=Config.PREFIX,

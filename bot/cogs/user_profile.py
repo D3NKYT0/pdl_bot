@@ -45,11 +45,42 @@ class UserProfile(commands.Cog):
                 discord.Status.online: "🟢",
                 discord.Status.idle: "🟡",
                 discord.Status.dnd: "🔴",
-                discord.Status.offline: "⚫"
+                discord.Status.do_not_disturb: "🔴",
+                discord.Status.offline: "⚫",
+                discord.Status.invisible: "⚫"
             }
+            
+            # Obter status do usuário
+            # Com a intenção presences habilitada, o status deve estar disponível
+            if isinstance(user, discord.Member):
+                # Tenta usar raw_status primeiro (combina status de todas as plataformas)
+                # raw_status retorna o status mais "ativo" entre desktop, mobile e web
+                # É mais preciso que user.status que pode retornar apenas o status de uma plataforma
+                try:
+                    # raw_status é uma propriedade que combina desktop, mobile e web status
+                    status = user.raw_status
+                except (AttributeError, TypeError):
+                    # Fallback para status normal se raw_status não estiver disponível
+                    status = user.status if user.status else discord.Status.offline
+            else:
+                status = discord.Status.offline
+            
+            # Mapear status para texto legível
+            status_names = {
+                discord.Status.online: "online",
+                discord.Status.idle: "ausente",
+                discord.Status.dnd: "ocupado",
+                discord.Status.do_not_disturb: "ocupado",
+                discord.Status.offline: "offline",
+                discord.Status.invisible: "invisível"
+            }
+            
+            status_text = status_names.get(status, "offline")
+            status_display = f"{status_emoji.get(status, '⚫')} {status_text}"
+            
             embed.add_field(
                 name="Status",
-                value=f"{status_emoji.get(user.status, '⚫')} {user.status.name if user.status else 'offline'}",
+                value=status_display,
                 inline=True
             )
             
