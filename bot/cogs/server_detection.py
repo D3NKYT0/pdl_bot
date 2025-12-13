@@ -18,7 +18,7 @@ class ServerDetection(commands.Cog):
         self.db = bot.db
     
     @app_commands.command(name="register", description="[PAINEL] Registra este servidor com um domínio do site PDL")
-    @app_commands.describe(domain="Domínio do site (ex: l2iron.com)")
+    @app_commands.describe(domain="Domínio do site (ex: pdl.denky.dev.br)")
     async def register(self, interaction: discord.Interaction, domain: str):
         """Registra o servidor Discord com um domínio do site"""
         await interaction.response.defer(ephemeral=True)

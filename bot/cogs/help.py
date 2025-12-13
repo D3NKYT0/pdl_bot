@@ -128,7 +128,7 @@ class HelpCommand(commands.Cog):
             embed.add_field(
                 name="`/register <domínio>`",
                 value="Registra este servidor Discord com um site PDL.\n"
-                      "Exemplo: `/register l2iron.com`",
+                      "Exemplo: `/register pdl.denky.dev.br`",
                 inline=False
             )
             embed.add_field(

@@ -118,10 +118,10 @@ python main.py
 Antes de usar os comandos do painel, você precisa registrar seu servidor Discord com um site PDL:
 
 ```
-/register l2iron.com
+/register pdl.denky.dev.br
 ```
 
-Isso vincula o servidor Discord ao site `l2iron.com`. Após o registro, todos os comandos `[PAINEL]` estarão disponíveis.
+Isso vincula o servidor Discord ao site `https://pdl.denky.dev.br/`. Após o registro, todos os comandos `[PAINEL]` estarão disponíveis.
 
 ### 2. Configurar o Bot
 
@@ -315,7 +315,7 @@ Registro de servidores Discord vinculados a domínios PDL
 ```json
 {
   "discord_guild_id": "123456789",
-  "site_domain": "l2iron.com",
+  "site_domain": "pdl.denky.dev.br",
   "server_name": "Iron L2",
   "is_active": true,
   "created_at": "2024-01-01T00:00:00Z"
