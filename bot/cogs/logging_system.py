@@ -26,8 +26,23 @@ class LoggingSystem(commands.Cog):
             if not log_channel_id:
                 return
             
-            log_channel = self.bot.get_channel(int(log_channel_id))
-            if log_channel:
+            # Buscar canal de forma robusta
+            channel_id = int(log_channel_id)
+            log_channel = self.bot.get_channel(channel_id)
+            
+            # Se não está no cache do bot, tenta buscar do guild
+            if not log_channel:
+                guild = self.bot.get_guild(guild_id)
+                if guild:
+                    log_channel = guild.get_channel(channel_id)
+                    if not log_channel:
+                        # Última tentativa: fetch
+                        try:
+                            log_channel = await guild.fetch_channel(channel_id)
+                        except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+                            pass
+            
+            if log_channel and isinstance(log_channel, discord.TextChannel):
                 await log_channel.send(embed=embed)
         except Exception as e:
             logger.error(f"Erro ao enviar log: {e}")

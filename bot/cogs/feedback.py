@@ -24,13 +24,16 @@ class Feedback(commands.Cog):
         """Envia feedback para os desenvolvedores"""
         # Limitar tamanho da mensagem
         if len(message) > 2000:
-            await interaction.response.send_message(
-                "❌ Sua mensagem é muito longa. Por favor, envie em partes menores (máximo 2000 caracteres).",
-                ephemeral=True
-            )
+            if not interaction.response.is_done():
+                await interaction.response.send_message(
+                    "❌ Sua mensagem é muito longa. Por favor, envie em partes menores (máximo 2000 caracteres).",
+                    ephemeral=True
+                )
             return
         
-        await interaction.response.defer(ephemeral=True)
+        # Verificar se a interação já foi reconhecida
+        if not interaction.response.is_done():
+            await interaction.response.defer(ephemeral=True)
         
         try:
             # Salvar no banco de dados
@@ -50,8 +53,25 @@ class Feedback(commands.Cog):
             
             if feedback_channel_id:
                 try:
-                    feedback_channel = self.bot.get_channel(int(feedback_channel_id))
-                    if feedback_channel:
+                    # Buscar canal de forma robusta
+                    channel_id = int(feedback_channel_id)
+                    feedback_channel = self.bot.get_channel(channel_id)
+                    
+                    # Se não está no cache do bot, tenta buscar do guild
+                    if not feedback_channel and interaction.guild:
+                        feedback_channel = interaction.guild.get_channel(channel_id)
+                        if not feedback_channel:
+                            # Última tentativa: fetch
+                            try:
+                                feedback_channel = await interaction.guild.fetch_channel(channel_id)
+                            except discord.NotFound:
+                                logger.warning(f"Canal de feedback {channel_id} não encontrado (404)")
+                            except discord.Forbidden:
+                                logger.warning(f"Sem permissão para acessar canal de feedback {channel_id} (403)")
+                            except discord.HTTPException as e:
+                                logger.warning(f"Erro HTTP ao buscar canal de feedback {channel_id}: {e}")
+                    
+                    if feedback_channel and isinstance(feedback_channel, discord.TextChannel):
                         embed = discord.Embed(
                             title="💬 Novo Feedback",
                             description=message,
@@ -65,8 +85,13 @@ class Feedback(commands.Cog):
                         embed.set_footer(text="Bot PDL - Sistema de Feedback")
                         
                         await feedback_channel.send(embed=embed)
+                        logger.info(f"Feedback enviado para canal {channel_id}")
+                    else:
+                        logger.warning(f"Canal de feedback {channel_id} não encontrado ou não é TextChannel")
                 except Exception as e:
-                    logger.warning(f"Erro ao enviar feedback para canal: {e}")
+                    logger.error(f"Erro ao enviar feedback para canal: {e}", exc_info=True)
+            else:
+                logger.info("Canal de feedback não configurado - feedback apenas salvo no banco de dados")
             
             await interaction.followup.send(
                 "✅ **Feedback enviado com sucesso!**\n\n"

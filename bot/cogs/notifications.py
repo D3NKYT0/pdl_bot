@@ -32,8 +32,23 @@ class Notifications(commands.Cog):
             if not channel_id:
                 return
             
-            channel = self.bot.get_channel(int(channel_id))
-            if channel:
+            # Buscar canal de forma robusta
+            channel_id_int = int(channel_id)
+            channel = self.bot.get_channel(channel_id_int)
+            
+            # Se não está no cache do bot, tenta buscar do guild
+            if not channel:
+                guild = self.bot.get_guild(guild_id)
+                if guild:
+                    channel = guild.get_channel(channel_id_int)
+                    if not channel:
+                        # Última tentativa: fetch
+                        try:
+                            channel = await guild.fetch_channel(channel_id_int)
+                        except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+                            pass
+            
+            if channel and isinstance(channel, discord.TextChannel):
                 await channel.send(embed=embed)
         except Exception as e:
             logger.error(f"Erro ao enviar notificação: {e}")

@@ -90,32 +90,55 @@ class PDLBot(commands.Bot):
         
     async def on_ready(self):
         """Evento quando o bot está pronto"""
-        logger.info(f'Bot conectado como {self.user}')
-        logger.info(f'ID: {self.user.id}')
-        logger.info(f'Conectado em {len(self.guilds)} servidores')
+        logger.info('=' * 50)
+        logger.info(f'✅ Bot conectado com sucesso!')
+        logger.info(f'   Nome: {self.user.name}#{self.user.discriminator}')
+        logger.info(f'   ID: {self.user.id}')
+        logger.info(f'   Servidores: {len(self.guilds)}')
+        
+        # Listar servidores se houver
+        if len(self.guilds) > 0:
+            logger.info('   Servidores conectados:')
+            for guild in self.guilds:
+                logger.info(f'      • {guild.name} (ID: {guild.id}, Membros: {guild.member_count})')
+        else:
+            logger.info('   ⚠️  Bot não está em nenhum servidor ainda')
+        
+        logger.info('=' * 50)
         
         # Sincronizar comandos slash
         try:
             synced = await self.tree.sync()
-            logger.info(f'Sincronizados {len(synced)} comandos slash')
+            logger.info(f'✅ Sincronizados {len(synced)} comandos slash')
         except Exception as e:
-            logger.error(f'Erro ao sincronizar comandos: {e}')
+            logger.error(f'❌ Erro ao sincronizar comandos: {e}')
         
         # Verificar servidores cadastrados
         await self.check_registered_servers()
         
     async def check_registered_servers(self):
         """Verifica quais servidores estão cadastrados"""
-        logger.info("Verificando servidores cadastrados...")
+        if len(self.guilds) == 0:
+            logger.info("ℹ️  Nenhum servidor para verificar")
+            return
+        
+        logger.info("🔍 Verificando servidores cadastrados...")
+        registered_count = 0
         
         for guild in self.guilds:
             guild_id = str(guild.id)
             server_data = await self.db.get_server_by_discord_id(guild_id)
             
             if server_data:
-                logger.info(f"Servidor {guild.name} ({guild_id}) está cadastrado: {server_data['site_domain']}")
+                logger.info(f"   ✅ {guild.name} → {server_data['site_domain']}")
+                registered_count += 1
             else:
-                logger.debug(f"Servidor {guild.name} ({guild_id}) não está cadastrado")
+                logger.debug(f"   ⚠️  {guild.name} não está cadastrado")
+        
+        if registered_count > 0:
+            logger.info(f"✅ {registered_count} de {len(self.guilds)} servidor(es) cadastrado(s)")
+        else:
+            logger.info("⚠️  Nenhum servidor cadastrado. Use /register para cadastrar.")
     
     async def get_site_client(self, domain: str) -> SiteClient:
         """Obtém ou cria um cliente para um domínio específico"""
@@ -139,6 +162,44 @@ class PDLBot(commands.Bot):
     async def on_guild_remove(self, guild: discord.Guild):
         """Evento quando o bot sai de um servidor"""
         logger.info(f"Bot saiu do servidor: {guild.name} (ID: {guild.id})")
+    
+    async def on_app_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        """Handler global de erros para comandos slash"""
+        if isinstance(error, app_commands.TransformerError):
+            # Erro ao converter parâmetro (ex: canal com caracteres especiais)
+            # Verificar se é um erro de canal checando a mensagem de erro
+            error_str = str(error).lower()
+            if 'channel' in error_str or 'canal' in error_str or 'textchannel' in error_str:
+                logger.info(f"Erro ao converter canal (tratado): {error.value} - Usuário recebeu mensagem de ajuda")
+                try:
+                    if interaction.response.is_done():
+                        await interaction.followup.send(
+                            "❌ **Erro ao processar canal:**\n"
+                            "O canal especificado não pôde ser encontrado ou convertido.\n\n"
+                            "**Soluções:**\n"
+                            "• Use a menção do canal (ex: #canal)\n"
+                            "• Use o ID do canal\n"
+                            "• Certifique-se de que o bot tem acesso ao canal\n"
+                            "• Se o canal tem caracteres especiais, tente usar a menção ou ID",
+                            ephemeral=True
+                        )
+                    else:
+                        await interaction.response.send_message(
+                            "❌ **Erro ao processar canal:**\n"
+                            "O canal especificado não pôde ser encontrado ou convertido.\n\n"
+                            "**Soluções:**\n"
+                            "• Use a menção do canal (ex: #canal)\n"
+                            "• Use o ID do canal\n"
+                            "• Certifique-se de que o bot tem acesso ao canal\n"
+                            "• Se o canal tem caracteres especiais, tente usar a menção ou ID",
+                            ephemeral=True
+                        )
+                except Exception as e:
+                    logger.error(f"Erro ao enviar mensagem de erro: {e}", exc_info=True)
+                return
+        
+        # Log outros erros não tratados
+        logger.error(f"Erro não tratado em comando slash: {error}", exc_info=True)
     
     async def close(self):
         """Fechar conexões ao desligar"""
