@@ -94,10 +94,10 @@ class HelpCommand(commands.Cog):
             )
             
             embed.add_field(
-                name="🔐 Autenticação",
+                name="🔐 Autenticação [PAINEL]",
                 value="`/login` - Fazer login\n"
                       "`/logout` - Fazer logout\n"
-                      "`/profile`, `/dashboard`, `/stats` - Dados pessoais",
+                      "`/panel-profile`, `/panel-dashboard`, `/panel-stats` - Dados pessoais",
                 inline=True
             )
             
@@ -285,18 +285,23 @@ class HelpCommand(commands.Cog):
                 inline=False
             )
             embed.add_field(
+                name="`/panel-profile`",
+                value="[PAINEL] Mostra seu perfil no site (requer login).",
+                inline=False
+            )
+            embed.add_field(
+                name="`/panel-dashboard`",
+                value="[PAINEL] Mostra seu dashboard com estatísticas (requer login).",
+                inline=False
+            )
+            embed.add_field(
+                name="`/panel-stats`",
+                value="[PAINEL] Mostra suas estatísticas detalhadas (requer login).",
+                inline=False
+            )
+            embed.add_field(
                 name="`/profile`",
-                value="Mostra seu perfil no site (requer login).",
-                inline=False
-            )
-            embed.add_field(
-                name="`/dashboard`",
-                value="Mostra seu dashboard com estatísticas (requer login).",
-                inline=False
-            )
-            embed.add_field(
-                name="`/stats`",
-                value="Mostra suas estatísticas detalhadas (requer login).",
+                value="[BOT] Mostra perfil de um usuário do Discord (não requer login).",
                 inline=False
             )
         

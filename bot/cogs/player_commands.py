@@ -856,7 +856,7 @@ class PlayerCommands(commands.Cog):
                 await interaction.followup.send(
                     f"✅ Login realizado com sucesso!\n"
                     f"Usuário: `{username_display}`\n\n"
-                    f"Agora você pode usar comandos autenticados como `/profile`, `/dashboard` e `/stats`.",
+                    f"Agora você pode usar comandos autenticados como `/panel-profile`, `/panel-dashboard` e `/panel-stats`.",
                     ephemeral=True
                 )
             else:
@@ -890,8 +890,8 @@ class PlayerCommands(commands.Cog):
             ephemeral=True
         )
     
-    @app_commands.command(name="profile", description="Mostra seu perfil no site (requer login)")
-    async def profile(self, interaction: discord.Interaction):
+    @app_commands.command(name="panel-profile", description="[PAINEL] Mostra seu perfil no site (requer login)")
+    async def panel_profile(self, interaction: discord.Interaction):
         """Mostra perfil do usuário"""
         if not await self._check_rate_limit(interaction, "profile"):
             reset_time = rate_limiter.get_reset_time(interaction.user.id, "profile")
@@ -958,8 +958,8 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="dashboard", description="Mostra seu dashboard (requer login)")
-    async def dashboard(self, interaction: discord.Interaction):
+    @app_commands.command(name="panel-dashboard", description="[PAINEL] Mostra seu dashboard (requer login)")
+    async def panel_dashboard(self, interaction: discord.Interaction):
         """Mostra dashboard do usuário"""
         if not await self._check_rate_limit(interaction, "dashboard"):
             reset_time = rate_limiter.get_reset_time(interaction.user.id, "dashboard")
@@ -1024,8 +1024,8 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="stats", description="Mostra suas estatísticas (requer login)")
-    async def stats(self, interaction: discord.Interaction):
+    @app_commands.command(name="panel-stats", description="[PAINEL] Mostra suas estatísticas (requer login)")
+    async def panel_stats(self, interaction: discord.Interaction):
         """Mostra estatísticas do usuário"""
         if not await self._check_rate_limit(interaction, "stats"):
             reset_time = rate_limiter.get_reset_time(interaction.user.id, "stats")

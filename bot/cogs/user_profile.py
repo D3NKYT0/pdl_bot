@@ -17,7 +17,7 @@ class UserProfile(commands.Cog):
         self.bot = bot
         self.db = bot.db
     
-    @app_commands.command(name="profile", description="Mostra perfil de um usuário do Discord")
+    @app_commands.command(name="profile", description="[BOT] Mostra perfil de um usuário do Discord")
     @app_commands.describe(user="Usuário para ver o perfil (deixe vazio para ver o seu)")
     async def profile(self, interaction: discord.Interaction, user: discord.Member = None):
         """Mostra perfil do usuário"""

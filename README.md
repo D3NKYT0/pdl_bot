@@ -117,12 +117,15 @@ Isso vincula o servidor Discord ao site `l2iron.com`.
 - `/auction [limite]` - Itens do leilão
 - `/item-search <nome>` - Busca um item
 
-#### Comandos Autenticados (Requerem Login)
+#### Comandos Autenticados [PAINEL] (Requerem Login)
 - `/login <username> <password>` - Faz login no site
 - `/logout` - Faz logout
-- `/profile` - Mostra seu perfil
-- `/dashboard` - Mostra seu dashboard
-- `/stats` - Mostra suas estatísticas
+- `/panel-profile` - Mostra seu perfil no site
+- `/panel-dashboard` - Mostra seu dashboard
+- `/panel-stats` - Mostra suas estatísticas
+
+#### Comandos do Bot [BOT]
+- `/profile [usuário]` - Mostra perfil de um usuário do Discord
 
 #### Ajuda
 - `/help` - Mostra informações sobre o bot
