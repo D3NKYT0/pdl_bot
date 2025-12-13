@@ -109,7 +109,12 @@ class PlayerCommands(commands.Cog):
             # Limita a 10 bosses para não exceder limite do embed
             for boss in data[:10]:
                 status = "🟢 Vivo" if boss.get('is_alive') else "🔴 Morto"
-                respawn = self._format_time(boss.get('respawn_time'))
+                respawn_time = boss.get('respawn_time', '-')
+                # Se respawn_time é "-", não tenta formatar
+                if respawn_time and respawn_time != '-':
+                    respawn = self._format_time(respawn_time)
+                else:
+                    respawn = respawn_time
                 location = boss.get('location', 'N/A')
                 
                 embed.add_field(
@@ -248,7 +253,7 @@ class PlayerCommands(commands.Cog):
             
             for i, player in enumerate(data[:limit], 1):
                 name = player.get('char_name', 'Unknown')
-                points = player.get('points', 0)
+                points = player.get('points', player.get('olympiad_points', 0))
                 class_name = player.get('class_name', 'Unknown')
                 rank = player.get('rank', i)
                 
@@ -637,7 +642,7 @@ class PlayerCommands(commands.Cog):
             
             data = await client.search_item(item_name)
             
-            if not data or not isinstance(data, list):
+            if not data or not isinstance(data, list) or len(data) == 0:
                 await interaction.followup.send(
                     f"❌ Item '{item_name}' não encontrado.",
                     ephemeral=True
@@ -654,7 +659,7 @@ class PlayerCommands(commands.Cog):
                 item_id = item.get('item_id', 'N/A')
                 name = item.get('item_name', 'Unknown')
                 grade = item.get('grade', 'N/A')
-                item_type = item.get('type', 'N/A')
+                item_type = item.get('item_type', item.get('type', 'N/A'))
                 
                 embed.add_field(
                     name=f"{name} (ID: {item_id})",
@@ -783,11 +788,16 @@ class PlayerCommands(commands.Cog):
             
             for i, player in enumerate(data, 1):
                 name = player.get('char_name', 'Unknown')
-                online_time = player.get('online_time', 0)
-                # Formata tempo (assumindo que está em segundos)
-                hours = online_time // 3600
-                minutes = (online_time % 3600) // 60
-                time_str = f"{hours}h {minutes}m"
+                # Tenta human_onlinetime primeiro (formato humanizado), depois online_time (segundos)
+                human_time = player.get('human_onlinetime')
+                if human_time:
+                    time_str = human_time
+                else:
+                    online_time = player.get('online_time', 0)
+                    # Formata tempo (assumindo que está em segundos)
+                    hours = online_time // 3600
+                    minutes = (online_time % 3600) // 60
+                    time_str = f"{hours}h {minutes}m"
                 
                 embed.add_field(
                     name=f"#{i} {name}",
@@ -841,9 +851,11 @@ class PlayerCommands(commands.Cog):
             )
             
             if result and result.get('success'):
+                user_info = self.auth_manager.get_user_info(interaction.user.id)
+                username_display = user_info.get('username', username) if user_info else username
                 await interaction.followup.send(
                     f"✅ Login realizado com sucesso!\n"
-                    f"Usuário: `{result.get('username')}`\n\n"
+                    f"Usuário: `{username_display}`\n\n"
                     f"Agora você pode usar comandos autenticados como `/profile`, `/dashboard` e `/stats`.",
                     ephemeral=True
                 )

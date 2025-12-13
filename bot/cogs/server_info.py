@@ -93,14 +93,17 @@ class ServerInfo(commands.Cog):
             
             data = await client.get_top_pvp(limit)
             
-            if not data or 'results' not in data:
+            # Aceita tanto lista direta quanto dict com 'results' (compatibilidade)
+            if isinstance(data, list):
+                results = data[:limit]
+            elif isinstance(data, dict) and 'results' in data:
+                results = data['results'][:limit]
+            else:
                 await interaction.followup.send(
                     "❌ Não foi possível obter dados do ranking.",
                     ephemeral=True
                 )
                 return
-            
-            results = data['results'][:limit]
             
             embed = discord.Embed(
                 title="⚔️ Top PvP",
@@ -110,7 +113,7 @@ class ServerInfo(commands.Cog):
             description = ""
             for i, player in enumerate(results, 1):
                 char_name = player.get('char_name', 'N/A')
-                pvp_count = player.get('pvp_count', 0)
+                pvp_count = player.get('pvpkills', player.get('pvp_count', 0))
                 description += f"**{i}.** {char_name} - {pvp_count} PvPs\n"
             
             if not description:
@@ -151,14 +154,17 @@ class ServerInfo(commands.Cog):
             
             data = await client.get_top_pk(limit)
             
-            if not data or 'results' not in data:
+            # Aceita tanto lista direta quanto dict com 'results' (compatibilidade)
+            if isinstance(data, list):
+                results = data[:limit]
+            elif isinstance(data, dict) and 'results' in data:
+                results = data['results'][:limit]
+            else:
                 await interaction.followup.send(
                     "❌ Não foi possível obter dados do ranking.",
                     ephemeral=True
                 )
                 return
-            
-            results = data['results'][:limit]
             
             embed = discord.Embed(
                 title="🔪 Top PK",
@@ -168,7 +174,7 @@ class ServerInfo(commands.Cog):
             description = ""
             for i, player in enumerate(results, 1):
                 char_name = player.get('char_name', 'N/A')
-                pk_count = player.get('pk_count', 0)
+                pk_count = player.get('pkkills', player.get('pk_count', 0))
                 description += f"**{i}.** {char_name} - {pk_count} PKs\n"
             
             if not description:
@@ -209,14 +215,17 @@ class ServerInfo(commands.Cog):
             
             data = await client.get_top_level(limit)
             
-            if not data or 'results' not in data:
+            # Aceita tanto lista direta quanto dict com 'results' (compatibilidade)
+            if isinstance(data, list):
+                results = data[:limit]
+            elif isinstance(data, dict) and 'results' in data:
+                results = data['results'][:limit]
+            else:
                 await interaction.followup.send(
                     "❌ Não foi possível obter dados do ranking.",
                     ephemeral=True
                 )
                 return
-            
-            results = data['results'][:limit]
             
             embed = discord.Embed(
                 title="📈 Top Nível",
@@ -262,7 +271,17 @@ class ServerInfo(commands.Cog):
             
             data = await client.search_character(character_name)
             
-            if not data:
+            # Aceita tanto lista quanto dict (compatibilidade)
+            if isinstance(data, list):
+                if len(data) == 0:
+                    await interaction.followup.send(
+                        f"❌ Personagem `{character_name}` não encontrado.",
+                        ephemeral=True
+                    )
+                    return
+                # Pega o primeiro resultado se for lista
+                data = data[0]
+            elif not data or not isinstance(data, dict):
                 await interaction.followup.send(
                     f"❌ Personagem `{character_name}` não encontrado.",
                     ephemeral=True

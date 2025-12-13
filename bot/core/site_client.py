@@ -4,7 +4,7 @@ Cliente para comunicação com a API do site PDL
 
 import logging
 import aiohttp
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, Union
 from bot.core.config import Config
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class SiteClient:
             self.session = aiohttp.ClientSession(timeout=timeout)
         return self.session
     
-    async def _request(self, method: str, endpoint: str, **kwargs) -> Optional[Dict]:
+    async def _request(self, method: str, endpoint: str, **kwargs) -> Optional[Union[Dict, List]]:
         """Faz uma requisição HTTP"""
         url = f"{self.base_url}{endpoint}"
         
@@ -81,24 +81,24 @@ class SiteClient:
         """Busca jogadores online"""
         return await self._request('GET', '/server/players-online/')
     
-    async def get_top_pvp(self, limit: int = 10) -> Optional[Dict]:
+    async def get_top_pvp(self, limit: int = 10) -> Optional[List]:
         """Busca top PvP"""
         return await self._request('GET', f'/server/top-pvp/?limit={limit}')
     
-    async def get_top_pk(self, limit: int = 10) -> Optional[Dict]:
+    async def get_top_pk(self, limit: int = 10) -> Optional[List]:
         """Busca top PK"""
         return await self._request('GET', f'/server/top-pk/?limit={limit}')
     
-    async def get_top_level(self, limit: int = 10) -> Optional[Dict]:
+    async def get_top_level(self, limit: int = 10) -> Optional[List]:
         """Busca top nível"""
         return await self._request('GET', f'/server/top-level/?limit={limit}')
     
-    async def get_top_clan(self, limit: int = 10) -> Optional[Dict]:
+    async def get_top_clan(self, limit: int = 10) -> Optional[List]:
         """Busca top clãs"""
         return await self._request('GET', f'/server/top-clan/?limit={limit}')
     
-    async def search_character(self, name: str) -> Optional[Dict]:
-        """Busca um personagem"""
+    async def search_character(self, name: str) -> Optional[List]:
+        """Busca um personagem (retorna lista de resultados)"""
         return await self._request('GET', f'/search/character/?name={name}')
     
     async def get_discord_server_info(self, discord_guild_id: str) -> Optional[Dict]:
@@ -115,58 +115,58 @@ class SiteClient:
     
     # ==================== NOVOS ENDPOINTS ====================
     
-    async def get_grandboss_status(self) -> Optional[Dict]:
+    async def get_grandboss_status(self) -> Optional[List]:
         """Busca status dos Grand Bosses"""
         return await self._request('GET', '/server/grandboss-status/')
     
-    async def get_raidboss_status(self) -> Optional[Dict]:
+    async def get_raidboss_status(self) -> Optional[List]:
         """Busca status dos Raid Bosses"""
         return await self._request('GET', '/server/raidboss-status/')
     
-    async def get_boss_jewel_locations(self, jewel_ids: list) -> Optional[Dict]:
+    async def get_boss_jewel_locations(self, jewel_ids: list) -> Optional[List]:
         """Busca localizações dos Boss Jewels"""
         ids_str = ','.join(map(str, jewel_ids))
         return await self._request('GET', f'/server/boss-jewel-locations/?ids={ids_str}')
     
-    async def get_olympiad_ranking(self) -> Optional[Dict]:
+    async def get_olympiad_ranking(self) -> Optional[List]:
         """Busca ranking da Olimpíada"""
         return await self._request('GET', '/server/olympiad-ranking/')
     
-    async def get_olympiad_heroes(self) -> Optional[Dict]:
+    async def get_olympiad_heroes(self) -> Optional[List]:
         """Busca todos os heróis da Olimpíada"""
         return await self._request('GET', '/server/olympiad-heroes/')
     
-    async def get_olympiad_current_heroes(self) -> Optional[Dict]:
+    async def get_olympiad_current_heroes(self) -> Optional[List]:
         """Busca heróis atuais da Olimpíada"""
         return await self._request('GET', '/server/olympiad-current-heroes/')
     
-    async def get_siege_status(self) -> Optional[Dict]:
+    async def get_siege_status(self) -> Optional[List]:
         """Busca status dos cercos"""
         return await self._request('GET', '/server/siege/')
     
-    async def get_siege_participants(self, castle_id: int) -> Optional[Dict]:
+    async def get_siege_participants(self, castle_id: int) -> Optional[List]:
         """Busca participantes de um cerco"""
         return await self._request('GET', f'/server/siege-participants/{castle_id}/')
     
     async def get_clan_detail(self, clan_name: str) -> Optional[Dict]:
-        """Busca detalhes de um clã"""
+        """Busca detalhes de um clã (retorna dict)"""
         # Sanitizar nome do clã
         clan_name = clan_name.strip().replace('/', '').replace('\\', '')
         return await self._request('GET', f'/clan/{clan_name}/')
     
-    async def get_auction_items(self, limit: int = 10) -> Optional[Dict]:
+    async def get_auction_items(self, limit: int = 10) -> Optional[List]:
         """Busca itens do leilão"""
         return await self._request('GET', f'/auction/items/?limit={limit}')
     
-    async def search_item(self, name: str) -> Optional[Dict]:
-        """Busca um item"""
+    async def search_item(self, name: str) -> Optional[List]:
+        """Busca um item (retorna lista de resultados)"""
         return await self._request('GET', f'/search/item/?name={name}')
     
-    async def get_top_rich(self, limit: int = 10) -> Optional[Dict]:
+    async def get_top_rich(self, limit: int = 10) -> Optional[List]:
         """Busca top riqueza (Adena)"""
         return await self._request('GET', f'/server/top-rich/?limit={limit}')
     
-    async def get_top_online(self, limit: int = 10) -> Optional[Dict]:
+    async def get_top_online(self, limit: int = 10) -> Optional[List]:
         """Busca top tempo online"""
         return await self._request('GET', f'/server/top-online/?limit={limit}')
     
