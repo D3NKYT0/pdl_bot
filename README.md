@@ -133,6 +133,19 @@ Configure canais e notificações usando os comandos de configuração:
 /config-set-notification - Ativar/desativar notificações
 ```
 
+### 3. Permissões dos Comandos
+
+📋 **Para ver a lista completa de permissões de cada comando, consulte [PERMISSIONS.md](PERMISSIONS.md)**
+
+**Resumo rápido:**
+- **Maioria dos comandos**: Qualquer membro pode usar
+- **Comandos administrativos**: Requerem permissão "Gerenciar Servidor"
+  - `/register`, `/unregister`, `/status` - Configuração do servidor
+  - `/config`, `/config-set-channel`, `/config-set-notification` - Configurações do bot
+  - `/announce` - Fazer anúncios
+- **Comandos autenticados**: Requerem login no site via `/login`
+  - `/account`, `/dashboard`, `/mystats`
+
 ## 📚 Comandos Disponíveis
 
 ### 🔧 Configuração [PAINEL]
@@ -424,12 +437,24 @@ Os logs são salvos em `bot.log` (ou o arquivo especificado em `LOG_FILE`) e tam
 
 O bot precisa das seguintes permissões no servidor Discord:
 
+**Permissões Básicas (Obrigatórias):**
 - ✅ **Ver Canais** (View Channels)
 - ✅ **Enviar Mensagens** (Send Messages)
 - ✅ **Incorporar Links** (Embed Links)
 - ✅ **Ler Histórico de Mensagens** (Read Message History)
 - ✅ **Usar Comandos de Aplicativo** (Use Application Commands)
-- ✅ **Gerenciar Mensagens** (Manage Messages) - para anúncios
+
+**Permissões Adicionais (Recomendadas):**
+- ✅ **Gerenciar Mensagens** (Manage Messages) - Para anúncios
+- ✅ **Anexar Arquivos** (Attach Files) - Para alguns recursos
+
+**Permissões por Canal:**
+Para canais configurados (anúncios, feedback, logs), o bot precisa de:
+- Ver Canais
+- Enviar Mensagens
+- Incorporar Links
+
+📋 **Para detalhes completos sobre permissões de comandos, veja [PERMISSIONS.md](PERMISSIONS.md)**
 
 ### Intenções do Bot (Discord Developer Portal)
 

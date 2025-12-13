@@ -19,6 +19,7 @@ class ServerDetection(commands.Cog):
     
     @app_commands.command(name="register", description="[PAINEL] Registra este servidor com um domínio do site PDL")
     @app_commands.describe(domain="Domínio do site (ex: pdl.denky.dev.br)")
+    @app_commands.default_permissions(manage_guild=True)
     async def register(self, interaction: discord.Interaction, domain: str):
         """Registra o servidor Discord com um domínio do site"""
         await interaction.response.defer(ephemeral=True)
@@ -73,6 +74,7 @@ class ServerDetection(commands.Cog):
             )
     
     @app_commands.command(name="unregister", description="[PAINEL] Remove o registro deste servidor")
+    @app_commands.default_permissions(manage_guild=True)
     async def unregister(self, interaction: discord.Interaction):
         """Remove o registro do servidor"""
         await interaction.response.defer(ephemeral=True)
@@ -110,6 +112,7 @@ class ServerDetection(commands.Cog):
             )
     
     @app_commands.command(name="status", description="[PAINEL] Verifica o status do registro deste servidor")
+    @app_commands.default_permissions(manage_guild=True)
     async def status(self, interaction: discord.Interaction):
         """Verifica o status do registro"""
         await interaction.response.defer(ephemeral=True)
