@@ -79,6 +79,7 @@ class PDLBot(commands.Bot):
             
             # Fase 3 - Melhorias
             await self.load_extension('bot.cogs.user_profile')
+            await self.load_extension('bot.cogs.rank')
             
             # Fase 4 - Extras
             await self.load_extension('bot.cogs.utility')

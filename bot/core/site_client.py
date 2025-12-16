@@ -194,3 +194,32 @@ class SiteClient:
         """Busca estatísticas do usuário (requer autenticação)"""
         headers = {'Authorization': f'Bearer {token}'}
         return await self._request('GET', '/user/stats/', headers=headers)
+    
+    async def get_character_ranking_position(self, character_name: str, ranking_type: str = 'level') -> Optional[Dict]:
+        """
+        Busca a posição de um personagem em um ranking específico
+        
+        Args:
+            character_name: Nome do personagem
+            ranking_type: Tipo de ranking ('level', 'pvp', 'pk', 'rich', 'online')
+        
+        Returns:
+            Dict com informações do personagem e sua posição no ranking
+        """
+        return await self._request('GET', f'/character/{character_name}/ranking-position/?type={ranking_type}')
+    
+    async def get_character_detail(self, character_name: str) -> Optional[Dict]:
+        """Busca detalhes completos de um personagem"""
+        return await self._request('GET', f'/character/{character_name}/')
+    
+    async def get_user_game_data(self, username: str) -> Optional[Dict]:
+        """
+        Busca dados de XP, conquistas e jogos do usuário
+        
+        Args:
+            username: Nome de usuário no sistema
+        
+        Returns:
+            Dict com level, XP, conquistas, etc.
+        """
+        return await self._request('GET', f'/user/game-data/?username={username}')
