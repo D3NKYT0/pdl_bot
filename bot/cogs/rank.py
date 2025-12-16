@@ -216,9 +216,9 @@ class Rank(commands.Cog):
         return output_path
     
     @app_commands.command(name="rank", description="[PAINEL] Mostra seu rank com imagem personalizada")
-    @app_commands.describe(character_name="Nome do personagem no jogo (deixe vazio para buscar pelo Discord)")
-    async def rank(self, interaction: discord.Interaction, character_name: str = None):
-        """Gera imagem de rank do personagem"""
+    @app_commands.describe(login="Login do usuário no site PDL (deixe vazio para usar seu próprio login)")
+    async def rank(self, interaction: discord.Interaction, login: str = None):
+        """Gera imagem de rank do usuário baseado no XP do PDL"""
         await interaction.response.defer()
         
         try:
@@ -231,38 +231,33 @@ class Rank(commands.Cog):
                 )
                 return
             
-            # Se não forneceu nome, tenta buscar pelo Discord ID
-            if not character_name:
-                # Aqui você pode implementar uma busca por Discord ID se tiver essa funcionalidade
-                await interaction.followup.send(
-                    "❌ Por favor, forneça o nome do personagem: `/rank <nome_do_personagem>`",
-                    ephemeral=True
-                )
-                return
+            # Se não forneceu login, usa o nome do usuário do Discord como fallback
+            if not login:
+                # Tenta usar o username do Discord como login
+                login = interaction.user.name
             
-            # Busca dados do personagem
-            character_data_list = await client.search_character(character_name)
-            
-            if not character_data_list or len(character_data_list) == 0:
-                await interaction.followup.send(
-                    f"❌ Personagem `{character_name}` não encontrado.",
-                    ephemeral=True
-                )
-                return
-            
-            # Pega o primeiro resultado
-            character_data = character_data_list[0] if isinstance(character_data_list, list) else character_data_list
-            
-            # Busca dados de XP e conquistas do usuário (tenta pelo nome do personagem como username)
+            # Busca dados de XP e conquistas do usuário pelo login
             user_game_data = None
             try:
-                # Tenta buscar dados do usuário pelo nome do personagem
-                user_game_data = await client.get_user_game_data(character_name)
+                user_game_data = await client.get_user_game_data(login)
             except Exception as e:
                 logger.debug(f"Erro ao buscar dados do usuário: {e}")
             
-            # Busca posição no ranking
-            position = await self._get_character_ranking_position(client, character_name)
+            if not user_game_data:
+                await interaction.followup.send(
+                    f"❌ Usuário `{login}` não encontrado no sistema PDL.",
+                    ephemeral=True
+                )
+                return
+            
+            # Obtém a posição no ranking de XP do PDL (vem do endpoint)
+            position = user_game_data.get('xp_ranking_position')
+            
+            # Cria um dict com dados do personagem para compatibilidade (pode ser vazio ou com dados básicos)
+            character_data = {
+                'char_name': login,
+                'level': user_game_data.get('level', 1),
+            }
             
             # Gera imagem
             image_path = await self._generate_rank_image(

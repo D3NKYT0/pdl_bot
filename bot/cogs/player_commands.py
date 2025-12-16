@@ -19,6 +19,37 @@ logger = logging.getLogger(__name__)
 class PlayerCommands(commands.Cog):
     """Comandos para jogadores interagirem com o servidor"""
     
+    # Mapeamento de nomes de castelos para IDs
+    CASTLE_ID_TO_NAME = {
+        1: "Gludio",
+        2: "Dion",
+        3: "Giran",
+        4: "Oren",
+        5: "Aden",
+        6: "Innadril",
+        7: "Goddard",
+        8: "Rune",
+        9: "Schuttgart",
+    }
+    
+    # Mapeamento de nomes de joias para IDs
+    JEWEL_NAME_TO_ID = {
+        "Ring of Queen Ant": 6660,
+        "Improved Ring of Queen Ant": 22174,
+        "Earring of Orfen": 6661,
+        "Necklace of Frintezza": 8191,
+        "Ring of Core": 6662,
+        "Earring of Antharas": 6656,
+        "Earring of Zaken": 6659,
+        "Improved Ring of Baium": 22173,
+        "Necklace of Valakas": 6657,
+        "Ring of Baium": 6658,
+        "Blessed Earring of Zaken": 21712,
+        "Blessed Necklace of Freya": 16026,
+        "Improved Blessed Earring of Zaken": 22175,
+        "Necklace of Freya": 16025,
+    }
+    
     def __init__(self, bot):
         self.bot = bot
         self.db = bot.db
@@ -135,9 +166,28 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
+    async def boss_jewel_autocomplete(
+        self, interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        """Autocomplete para nomes de joias"""
+        if not current:
+            return [
+                app_commands.Choice(name=jewel_name, value=jewel_name)
+                for jewel_name in list(self.JEWEL_NAME_TO_ID.keys())[:25]
+            ]
+        
+        current_lower = current.lower()
+        matches = [
+            app_commands.Choice(name=jewel_name, value=jewel_name)
+            for jewel_name in self.JEWEL_NAME_TO_ID.keys()
+            if current_lower in jewel_name.lower()
+        ]
+        return matches[:25]
+    
     @app_commands.command(name="boss-jewel", description="[PAINEL] Busca localização de Boss Jewels")
-    @app_commands.describe(jewel_ids="IDs dos jewels separados por vírgula (ex: 6656,6657)")
-    async def boss_jewel(self, interaction: discord.Interaction, jewel_ids: str):
+    @app_commands.describe(jewels="Nomes das joias separados por vírgula (ex: Earring of Antharas, Necklace of Valakas)")
+    @app_commands.autocomplete(jewels="boss_jewel_autocomplete")
+    async def boss_jewel(self, interaction: discord.Interaction, jewels: str):
         """Busca localização de Boss Jewels"""
         if not await self._check_rate_limit(interaction, "boss_jewel"):
             return
@@ -145,18 +195,37 @@ class PlayerCommands(commands.Cog):
         await interaction.response.defer()
         
         try:
-            # Valida e sanitiza IDs
-            try:
-                ids = [int(id.strip()) for id in jewel_ids.split(',')]
-                if len(ids) > 10:
-                    await interaction.followup.send(
-                        "❌ Máximo de 10 jewels por vez.",
-                        ephemeral=True
-                    )
-                    return
-            except ValueError:
+            # Converte nomes de joias para IDs
+            jewel_names = [name.strip() for name in jewels.split(',')]
+            if len(jewel_names) > 10:
                 await interaction.followup.send(
-                    "❌ IDs inválidos. Use números separados por vírgula (ex: 6656,6657).",
+                    "❌ Máximo de 10 jewels por vez.",
+                    ephemeral=True
+                )
+                return
+            
+            ids = []
+            invalid_jewels = []
+            for jewel_name in jewel_names:
+                jewel_id = self.JEWEL_NAME_TO_ID.get(jewel_name)
+                if jewel_id:
+                    ids.append(jewel_id)
+                else:
+                    invalid_jewels.append(jewel_name)
+            
+            if invalid_jewels:
+                available_jewels = ', '.join(list(self.JEWEL_NAME_TO_ID.keys())[:10])
+                await interaction.followup.send(
+                    f"❌ Joias inválidas: {', '.join(invalid_jewels)}\n\n"
+                    f"**Joias disponíveis (exemplos):** {available_jewels}...\n"
+                    f"Use o autocomplete ao digitar para ver todas as opções disponíveis.",
+                    ephemeral=True
+                )
+                return
+            
+            if not ids:
+                await interaction.followup.send(
+                    "❌ Nenhuma joia válida fornecida.",
                     ephemeral=True
                 )
                 return
@@ -397,8 +466,19 @@ class PlayerCommands(commands.Cog):
             )
     
     @app_commands.command(name="siege-participants", description="[PAINEL] Mostra participantes de um cerco")
-    @app_commands.describe(castle_id="ID do castelo (1-9)")
-    async def siege_participants(self, interaction: discord.Interaction, castle_id: int):
+    @app_commands.describe(castle="Nome do castelo")
+    @app_commands.choices(castle=[
+        app_commands.Choice(name="Gludio", value=1),
+        app_commands.Choice(name="Dion", value=2),
+        app_commands.Choice(name="Giran", value=3),
+        app_commands.Choice(name="Oren", value=4),
+        app_commands.Choice(name="Aden", value=5),
+        app_commands.Choice(name="Innadril", value=6),
+        app_commands.Choice(name="Goddard", value=7),
+        app_commands.Choice(name="Rune", value=8),
+        app_commands.Choice(name="Schuttgart", value=9),
+    ])
+    async def siege_participants(self, interaction: discord.Interaction, castle: int):
         """Mostra participantes de um cerco"""
         if not await self._check_rate_limit(interaction, "siege_participants"):
             reset_time = rate_limiter.get_reset_time(interaction.user.id, "siege_participants")
@@ -410,13 +490,8 @@ class PlayerCommands(commands.Cog):
             )
             return
         
-        # Valida castle_id
-        if castle_id < 1 or castle_id > 9:
-            await interaction.response.send_message(
-                "❌ ID do castelo deve ser entre 1 e 9.",
-                ephemeral=True
-            )
-            return
+        castle_id = castle
+        castle_name = self.CASTLE_ID_TO_NAME.get(castle_id, f"Castelo {castle_id}")
         
         await interaction.response.defer()
         
@@ -440,7 +515,7 @@ class PlayerCommands(commands.Cog):
                 return
             
             embed = discord.Embed(
-                title=f"👥 Participantes do Cerco (Castelo {castle_id})",
+                title=f"👥 Participantes do Cerco - {castle_name}",
                 color=discord.Color.purple(),
                 timestamp=discord.utils.utcnow()
             )
