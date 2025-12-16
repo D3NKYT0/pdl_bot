@@ -16,7 +16,7 @@ def remove_acentos_e_caracteres_especiais(word):
     palavra_sem_acento = u"".join([c for c in nfkd if not unicodedata.combining(c)])
 
     # Usa expressão regular para retornar a palavra apenas com números, letras e espaço
-    return re.sub('[^a-zA-Z \\\]', '', palavra_sem_acento)
+    return re.sub(r'[^a-zA-Z \\]', '', palavra_sem_acento)
 
 
 async def get_avatar(display_avatar_url: str, x: int = -1, y: int = -1, rect: bool = False):

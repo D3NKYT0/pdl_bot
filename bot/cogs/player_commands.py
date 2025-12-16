@@ -15,6 +15,43 @@ from bot.core.auth_manager import AuthManager
 
 logger = logging.getLogger(__name__)
 
+# Mapeamento de nomes de joias para IDs (usado para autocomplete)
+JEWEL_NAME_TO_ID = {
+    "Ring of Queen Ant": 6660,
+    "Improved Ring of Queen Ant": 22174,
+    "Earring of Orfen": 6661,
+    "Necklace of Frintezza": 8191,
+    "Ring of Core": 6662,
+    "Earring of Antharas": 6656,
+    "Earring of Zaken": 6659,
+    "Improved Ring of Baium": 22173,
+    "Necklace of Valakas": 6657,
+    "Ring of Baium": 6658,
+    "Blessed Earring of Zaken": 21712,
+    "Blessed Necklace of Freya": 16026,
+    "Improved Blessed Earring of Zaken": 22175,
+    "Necklace of Freya": 16025,
+}
+
+
+async def boss_jewel_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> list[app_commands.Choice[str]]:
+    """Autocomplete para nomes de joias"""
+    if not current:
+        return [
+            app_commands.Choice(name=jewel_name, value=jewel_name)
+            for jewel_name in list(JEWEL_NAME_TO_ID.keys())[:25]
+        ]
+    
+    current_lower = current.lower()
+    matches = [
+        app_commands.Choice(name=jewel_name, value=jewel_name)
+        for jewel_name in JEWEL_NAME_TO_ID.keys()
+        if current_lower in jewel_name.lower()
+    ]
+    return matches[:25]
+
 
 class PlayerCommands(commands.Cog):
     """Comandos para jogadores interagirem com o servidor"""
@@ -32,23 +69,8 @@ class PlayerCommands(commands.Cog):
         9: "Schuttgart",
     }
     
-    # Mapeamento de nomes de joias para IDs
-    JEWEL_NAME_TO_ID = {
-        "Ring of Queen Ant": 6660,
-        "Improved Ring of Queen Ant": 22174,
-        "Earring of Orfen": 6661,
-        "Necklace of Frintezza": 8191,
-        "Ring of Core": 6662,
-        "Earring of Antharas": 6656,
-        "Earring of Zaken": 6659,
-        "Improved Ring of Baium": 22173,
-        "Necklace of Valakas": 6657,
-        "Ring of Baium": 6658,
-        "Blessed Earring of Zaken": 21712,
-        "Blessed Necklace of Freya": 16026,
-        "Improved Blessed Earring of Zaken": 22175,
-        "Necklace of Freya": 16025,
-    }
+    # Mapeamento de nomes de joias para IDs (definido no nível do módulo)
+    # Usa JEWEL_NAME_TO_ID do módulo
     
     def __init__(self, bot):
         self.bot = bot
@@ -166,27 +188,9 @@ class PlayerCommands(commands.Cog):
                 ephemeral=True
             )
     
-    async def boss_jewel_autocomplete(
-        self, interaction: discord.Interaction, current: str
-    ) -> list[app_commands.Choice[str]]:
-        """Autocomplete para nomes de joias"""
-        if not current:
-            return [
-                app_commands.Choice(name=jewel_name, value=jewel_name)
-                for jewel_name in list(self.JEWEL_NAME_TO_ID.keys())[:25]
-            ]
-        
-        current_lower = current.lower()
-        matches = [
-            app_commands.Choice(name=jewel_name, value=jewel_name)
-            for jewel_name in self.JEWEL_NAME_TO_ID.keys()
-            if current_lower in jewel_name.lower()
-        ]
-        return matches[:25]
-    
     @app_commands.command(name="boss-jewel", description="[PAINEL] Busca localização de Boss Jewels")
     @app_commands.describe(jewels="Nomes das joias separados por vírgula (ex: Earring of Antharas, Necklace of Valakas)")
-    @app_commands.autocomplete(jewels="boss_jewel_autocomplete")
+    @app_commands.autocomplete(jewels=boss_jewel_autocomplete)
     async def boss_jewel(self, interaction: discord.Interaction, jewels: str):
         """Busca localização de Boss Jewels"""
         if not await self._check_rate_limit(interaction, "boss_jewel"):
@@ -207,14 +211,14 @@ class PlayerCommands(commands.Cog):
             ids = []
             invalid_jewels = []
             for jewel_name in jewel_names:
-                jewel_id = self.JEWEL_NAME_TO_ID.get(jewel_name)
+                jewel_id = JEWEL_NAME_TO_ID.get(jewel_name)
                 if jewel_id:
                     ids.append(jewel_id)
                 else:
                     invalid_jewels.append(jewel_name)
             
             if invalid_jewels:
-                available_jewels = ', '.join(list(self.JEWEL_NAME_TO_ID.keys())[:10])
+                available_jewels = ', '.join(list(JEWEL_NAME_TO_ID.keys())[:10])
                 await interaction.followup.send(
                     f"❌ Joias inválidas: {', '.join(invalid_jewels)}\n\n"
                     f"**Joias disponíveis (exemplos):** {available_jewels}...\n"
